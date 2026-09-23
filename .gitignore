@@ -1,0 +1,31 @@
+##THIS TO IGNORE ALL FILES FOR REPO
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+
+# Raw and processed data
+data/raw/
+data/processed/
+
+# Model files
+models/
+*.pt
+*.pth
+*.keras
+*.h5
+*.ckpt
+
+# Training output
+logs/
+runs/
+
+# macOS
+.DS_Store
+Icon?
