@@ -1,5 +1,3 @@
-"""Shared project configuration."""
-
 """Shared configuration for the BMME 575 DenseNet121 project."""
 
 from pathlib import Path
@@ -31,10 +29,16 @@ ORIGINAL_LABEL_COLUMN = "diagnosis"
 BINARY_LABEL_COLUMN = "binary_label"
 FILENAME_COLUMN = "filename"
 SPLIT_COLUMN = "split"
-HASH_COLUMN = "sha256"
 
 IMAGE_EXTENSION = ".png"
 
+RANDOM_SEED = 0
+
+TRAIN_SIZE = 0.70
+VAL_SIZE = 0.10
+TEST_SIZE = 0.20
+
+STRATIFY_COLUMN = ORIGINAL_LABEL_COLUMN ## we stratify bc dataset has 5 grades 0-4 so a random split wouldnt make a fair split since different classes had diff sizes
 
 # ============================================================
 # Expected APTOS 2019 dataset information
@@ -64,11 +68,12 @@ BINARY_CLASS_NAMES = {
 }
 
 
+
 # ============================================================
 # Reproducible splitting configuration
 # ============================================================
 
-RANDOM_SEED = 42
+RANDOM_SEED = 0
 
 TRAIN_SIZE = 0.70
 VAL_SIZE = 0.10
@@ -86,7 +91,7 @@ STRATIFY_COLUMN = ORIGINAL_LABEL_COLUMN
 
 IMAGE_HEIGHT = 224
 IMAGE_WIDTH = 224
-IMAGE_CHANNELS = 3
+IMAGE_CHANNELS = 3 #RGB
 
 DENSENET_BATCH_SIZE = 32
 DENSENET_EPOCHS = 50
