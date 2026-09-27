@@ -29,3 +29,6 @@ runs/
 # macOS
 .DS_Store
 Icon?
+
+# VS Code settings
+.vscode/
