@@ -1,8 +1,12 @@
 """Tests for scripts/preprocess.py. Run from the repo root with: python -m pytest -v"""
+#Tests give you an automatic way to prove your code works, and to catch it when it stops working.
 
 import cv2
 import numpy as np
 import pytest
+import pandas as pd
+
+import config
 
 from scripts import preprocess as pp
 
@@ -97,3 +101,37 @@ def test_full_pipeline_output_format(tmp_path):
     out = pp.preprocess_image(path)
     assert out.shape == (224, 224, 3)
     assert out.dtype == np.uint8
+
+    # ---------- save_image ----------
+
+def test_save_image_round_trip_keeps_colors(tmp_path):
+    """Saving and reloading an image should give back exactly the same RGB values."""
+    img = pp.resize_image(make_fake_fundus())
+    path = tmp_path / "saved.png"
+    pp.save_image(img, path)
+    assert np.array_equal(pp.load_image(path), img)
+
+
+# ---------- full-dataset output (skipped until preprocessing has been run) ----------
+
+PROCESSED_READY = pp.PROCESSED_DIR.exists() and any(pp.PROCESSED_DIR.glob("*.png"))
+SKIP_REASON = "Processed images not found. Run: python -m scripts.preprocess"
+
+
+@pytest.mark.skipif(not PROCESSED_READY, reason=SKIP_REASON)
+def test_every_listed_image_was_processed():
+    """Every image ID in all_splits.csv should have a matching processed PNG."""
+    expected = set(pd.read_csv(pp.ALL_SPLITS_CSV)[config.ID_COLUMN])
+    found = {p.stem for p in pp.PROCESSED_DIR.glob(f"*{config.IMAGE_EXTENSION}")}
+    missing = expected - found
+    assert not missing, f"{len(missing)} images missing, e.g. {sorted(missing)[:5]}"
+    assert len(expected) == config.EXPECTED_TOTAL_IMAGES
+
+
+@pytest.mark.skipif(not PROCESSED_READY, reason=SKIP_REASON)
+def test_saved_images_match_current_pipeline():
+    """A saved image should exactly match reprocessing it now (catches color swaps or outdated files)."""
+    img_id = pd.read_csv(pp.ALL_SPLITS_CSV)[config.ID_COLUMN].iloc[0]
+    saved = pp.load_image(pp.PROCESSED_DIR / f"{img_id}{config.IMAGE_EXTENSION}")
+    fresh = pp.preprocess_image(pp.RAW_IMAGE_DIR / f"{img_id}{config.IMAGE_EXTENSION}")
+    assert np.array_equal(saved, fresh)
