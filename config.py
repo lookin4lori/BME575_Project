@@ -97,3 +97,18 @@ DENSENET_BATCH_SIZE = 32
 DENSENET_EPOCHS = 50
 DENSENET_INITIAL_LEARNING_RATE = 0.01
 DENSENET_MINIMUM_LEARNING_RATE = 0.00005
+
+
+# ============================================================
+# Image preprocessing (Part 2 - Anais)
+# ============================================================
+# The paper (Section 4.1) specifies 224x224 resizing, Gaussian blur, and
+# Ben Graham cropping but gives no parameters. Values below were tuned
+# visually. Image size comes from IMAGE_HEIGHT / IMAGE_WIDTH above.
+
+PREPROCESSED_IMAGE_DIR = PROCESSED_DATA_DIR / "aptos2019_224"
+
+CROP_TOLERANCE = 4          # pixels darker than this count as black border
+BEN_GRAHAM_SIGMA = 25       # Gaussian blur strength for the Ben Graham step
+USE_CIRCLE_MASK = True      # trim the bright ring at the retina's edge
+CIRCLE_SCALE = 0.95         # mask radius as a fraction of half the image width
