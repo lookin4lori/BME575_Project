@@ -6,22 +6,27 @@ Pipeline: crop to retina -> resize to 224x224 -> Ben Graham enhancement
 Run from the repo root with: python -m scripts.preprocess
 """
 
+import argparse
 from pathlib import Path
 
 import cv2
 import numpy as np
+import pandas as pd
 
-# Settings. Move these into config.py after Loreta's branch is merged.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-RAW_DIR = PROJECT_ROOT / "data" / "raw" / "aptos2019"
-RAW_IMAGE_DIR = RAW_DIR / "train_images"
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed" / "aptos2019_224"
+import config
 
-IMG_SIZE = 224          # from the paper
-CROP_TOL = 4            # pixels darker than this count as black border
-BLUR_SIGMA = 25         # Gaussian blur strength for Ben Graham
-USE_CIRCLE_MASK = True  # trim the bright ring at the retina's edge
-CIRCLE_SCALE = 0.95      # circle radius as a fraction of half the image width
+# All settings live in config.py. Short local names are kept so the functions
+# below, the notebook, and the tests keep working without changes.
+RAW_DIR = config.RAW_DATA_DIR
+RAW_IMAGE_DIR = config.IMAGE_DIR
+PROCESSED_DIR = config.PREPROCESSED_IMAGE_DIR
+ALL_SPLITS_CSV = config.SPLIT_DIR / "all_splits.csv"   # Loreta's manifest of all images
+
+IMG_SIZE = config.IMAGE_HEIGHT   # 224, from the paper; height and width are equal
+CROP_TOL = config.CROP_TOLERANCE
+BLUR_SIGMA = config.BEN_GRAHAM_SIGMA
+USE_CIRCLE_MASK = config.USE_CIRCLE_MASK
+CIRCLE_SCALE = config.CIRCLE_SCALE
 
 def load_image(path):
     """Read an image from disk and return it as an RGB array."""
@@ -86,3 +91,71 @@ def preprocess_image(path):
     if USE_CIRCLE_MASK:
         img = apply_circular_mask(img)  # remove bright edge artifact
     return img
+
+def save_image(img, path):
+    """Save an RGB image as a PNG. OpenCV writes in BGR order, so convert first."""
+    ok = cv2.imwrite(str(path), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    if not ok:
+        raise IOError(f"Could not write image: {path}")
+
+
+def process_all(manifest=ALL_SPLITS_CSV, out_dir=PROCESSED_DIR, overwrite=False):
+    """Preprocess every image listed in the split manifest and save it to out_dir.
+
+    Returns a dict of counts (processed, skipped, failed) and a list of failed image IDs.
+    """
+    ids = pd.read_csv(manifest)[config.ID_COLUMN]
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    counts = {"processed": 0, "skipped": 0, "failed": 0}
+    failed_ids = []
+    total = len(ids)
+
+    for i, img_id in enumerate(ids, start=1):
+        out_path = out_dir / f"{img_id}{config.IMAGE_EXTENSION}"
+
+        # Skip images that were already processed, unless asked to redo them.
+        if out_path.exists() and not overwrite:
+            counts["skipped"] += 1
+        else:
+            try:
+                img = preprocess_image(RAW_IMAGE_DIR / f"{img_id}{config.IMAGE_EXTENSION}")
+                save_image(img, out_path)
+                counts["processed"] += 1
+            except Exception as err:
+                # Record the failure and keep going instead of stopping the whole run.
+                counts["failed"] += 1
+                failed_ids.append(img_id)
+                print(f"  FAILED {img_id}: {err}")
+
+        if i % 200 == 0 or i == total:
+            print(f"  {i}/{total} images done")
+
+    return counts, failed_ids
+
+
+def main():
+    """Command-line entry point: python -m scripts.preprocess [--overwrite]"""
+    parser = argparse.ArgumentParser(description="Preprocess APTOS 2019 fundus images.")
+    parser.add_argument("--overwrite", action="store_true",
+                        help="Reprocess images even if output files already exist.")
+    args = parser.parse_args()
+
+    print("Preprocessing settings:")
+    print(f"  size={IMG_SIZE}  crop_tol={CROP_TOL}  sigma={BLUR_SIGMA}  "
+          f"mask={USE_CIRCLE_MASK}  mask_scale={CIRCLE_SCALE}")
+    print(f"  input:  {RAW_IMAGE_DIR}")
+    print(f"  output: {PROCESSED_DIR}\n")
+
+    counts, failed_ids = process_all(overwrite=args.overwrite)
+
+    print("\nSummary:")
+    print(f"  processed: {counts['processed']}")
+    print(f"  skipped (already existed): {counts['skipped']}")
+    print(f"  failed: {counts['failed']}")
+    if failed_ids:
+        print(f"  failed IDs: {failed_ids}")
+
+
+if __name__ == "__main__":
+    main()
