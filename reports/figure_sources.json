@@ -1,0 +1,20 @@
+{
+  "purpose": "Source provenance for the full-corpus Section 1c training batch figure",
+  "source_archive": "aptos2019-blindness-detection.zip",
+  "source_archive_sha256": "18036845ab76b68d305d6e2dbbaaaf5cd23926be740e1297a8972ac1c6360976",
+  "source_archive_bytes": 10215289875,
+  "official_dataset": "https://www.kaggle.com/competitions/aptos2019-blindness-detection/data",
+  "labeled_image_archive_folder": "train_images/",
+  "labeled_image_count": 3662,
+  "labels_from": "Archive train.csv; IDs and grades exactly match supplied data/splits/all_splits.csv",
+  "team_split_source": "supplied data/splits/train.csv, val.csv, test.csv",
+  "preprocessing": "supplied scripts/preprocess.py with config.py defaults; 224x224 RGB PNG",
+  "figure_file": "figures/sample_training_batch.png",
+  "figure_sha256": "5ff100c932034843f8853799fb736f89dc55f4e6eb6a2cf61498152133e6279d",
+  "figure_samples": 32,
+  "figure_batch_selection": "first tf.data training batch, shuffled with RANDOM_SEED=0 and augmented",
+  "figure_class_counts": {
+    "0": 16,
+    "1": 16
+  }
+}

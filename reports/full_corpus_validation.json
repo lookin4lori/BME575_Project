@@ -1,0 +1,83 @@
+{
+  "source_archive": "aptos2019-blindness-detection.zip",
+  "status": "pass",
+  "expected_total": 3662,
+  "manifest": {
+    "split_counts": {
+      "train": 2562,
+      "val": 367,
+      "test": 733
+    },
+    "all_splits_count": 3662,
+    "all_splits_matches_union": true,
+    "duplicate_ids": 0,
+    "duplicate_filenames": 0,
+    "class_distribution_counts_match": true,
+    "by_split": {
+      "train": {
+        "diagnosis": {
+          "0": 1263,
+          "1": 259,
+          "2": 699,
+          "3": 135,
+          "4": 206
+        },
+        "binary_label": {
+          "0": 1263,
+          "1": 1299
+        }
+      },
+      "val": {
+        "diagnosis": {
+          "0": 181,
+          "1": 37,
+          "2": 100,
+          "3": 19,
+          "4": 30
+        },
+        "binary_label": {
+          "0": 181,
+          "1": 186
+        }
+      },
+      "test": {
+        "diagnosis": {
+          "0": 361,
+          "1": 74,
+          "2": 200,
+          "3": 39,
+          "4": 59
+        },
+        "binary_label": {
+          "0": 361,
+          "1": 372
+        }
+      }
+    }
+  },
+  "processed_images": {
+    "file_count": 3662,
+    "matched_count": 3662,
+    "missing_count": 0,
+    "unexpected_count": 0,
+    "case_insensitive_filename_collisions": 0,
+    "decoded_count": 3662,
+    "invalid_or_undecodable_count": 0,
+    "formats": {
+      "PNG": 3662
+    },
+    "modes": {
+      "RGB": 3662
+    },
+    "sizes": {
+      "224x224": 3662
+    }
+  },
+  "raw_train_images": {
+    "file_count": 3662,
+    "missing_count": 0,
+    "unexpected_count": 0,
+    "original_labels_count": 3662
+  },
+  "issues": []
+}
