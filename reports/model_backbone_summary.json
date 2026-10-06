@@ -1,0 +1,49 @@
+{
+  "backbone": "densenet121",
+  "weights": "imagenet",
+  "input_shape": [
+    224,
+    224,
+    3
+  ],
+  "output_shape": [
+    7,
+    7,
+    1024
+  ],
+  "num_layers": 427,
+  "default_unfreeze_last_n_blocks": 0,
+  "keep_batchnorm_frozen": true,
+  "parameter_counts": [
+    {
+      "unfreeze_last_n_blocks": 0,
+      "total": 7037504,
+      "trainable": 0,
+      "non_trainable": 7037504
+    },
+    {
+      "unfreeze_last_n_blocks": 1,
+      "total": 7037504,
+      "trainable": 2129920,
+      "non_trainable": 4907584
+    },
+    {
+      "unfreeze_last_n_blocks": 2,
+      "total": 7037504,
+      "trainable": 5455872,
+      "non_trainable": 1581632
+    },
+    {
+      "unfreeze_last_n_blocks": 3,
+      "total": 7037504,
+      "trainable": 6496256,
+      "non_trainable": 541248
+    },
+    {
+      "unfreeze_last_n_blocks": 4,
+      "total": 7037504,
+      "trainable": 6860800,
+      "non_trainable": 176704
+    }
+  ]
+}
