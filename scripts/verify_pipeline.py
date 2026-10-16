@@ -33,6 +33,11 @@ def check_forward_pass(model, images, labels): #check probabilities
         "Images contain NaN or infinite values.",
     )
 
+    require(
+        tuple(labels.shape) == (len(images),),
+        f"Expected one scalar class label per image; got {labels.shape}",
+    )
+
     require( np.isin(labels.numpy(), [0, 1]).all(),
         "Labels must contain only 0 and 1.",
     )
@@ -40,8 +45,8 @@ def check_forward_pass(model, images, labels): #check probabilities
     # training=False disables dropout during this prediction check.
     predictions = model(images, training=False).numpy()
 
-    require( predictions.shape == (len(images), 1),
-        f"Expected one probability per image; got {predictions.shape}",
+    require( predictions.shape == (len(images), 2),
+        f"Expected two class probabilities per image; got {predictions.shape}",
     )
 
     require( np.isfinite(predictions).all(),
@@ -50,13 +55,19 @@ def check_forward_pass(model, images, labels): #check probabilities
 
     require(
         ((predictions >= 0) & (predictions <= 1)).all(),
-        "Sigmoid probabilities must be between 0 and 1.",
+        "Softmax probabilities must be between 0 and 1.",
+    )
+
+    require(
+        np.allclose(predictions.sum(axis=1), 1.0, atol=1e-5),
+        "Softmax probabilities must sum to 1 for each image.",
     )
 
     return {
         "image_shape": list(images.shape),
         "label_shape": list(labels.shape),
         "prediction_shape": list(predictions.shape),
+        "prediction_columns": ["no_dr", "any_dr"],
     }
 
 
@@ -191,11 +202,11 @@ def check_weight_updates(model, images, labels):
         "Trainable weights were found outside the classifier head.",
     )
 
-    # 1,024 features 4 globoal poolin
-    # One sigmoid unit has 1,024 weights and one bias.
+    # Global pooling yields 1,024 features. Two softmax units have
+    # 1,024 x 2 weights and two biases.
     require(
-        counts["full_model"]["trainable"] == 1025,
-        "Expected 1,025 trainable parameters for this classifier head.",
+        counts["full_model"]["trainable"] == 2050,
+        "Expected 2,050 trainable parameters for this classifier head.",
     )
 
     initial_model_weights = model.get_weights()
@@ -250,15 +261,15 @@ def run_overfit_test(model, images, labels, epochs, output_dir):
         # Evaluate the SAME training subset with dropout disabled.
         predictions = model(images, training=False)
 
-        loss = float(
-            tf.reduce_mean(
-                tf.keras.losses.binary_crossentropy(labels, predictions)
+        loss = float(tf.reduce_mean(
+            tf.keras.losses.sparse_categorical_crossentropy(
+                tf.cast(labels, tf.int32), predictions
             )
-        )
+        ))
 
         accuracy = float(
             np.mean(
-                (predictions.numpy() >= 0.5) == labels.numpy()
+                np.argmax(predictions.numpy(), axis=1) == labels.numpy()
             )
         )
 
@@ -341,6 +352,10 @@ def run_verification(epochs, output_dir, report):
         "pretrained_weights": config.BACKBONE_WEIGHTS,
         "learning_rate": config.DENSENET_INITIAL_LEARNING_RATE,
         "dropout": config.CLASSIFIER_DROPOUT_RATE,
+        "output_units": config.CLASSIFIER_OUTPUT_UNITS,
+        "output_activation": config.CLASSIFIER_OUTPUT_ACTIVATION,
+        "loss": config.CLASSIFIER_LOSS,
+        "prediction_columns": ["no_dr", "any_dr"],
         "diagnostic_epochs": epochs,
         "configured_batch_size": config.DENSENET_BATCH_SIZE,
         "effective_diagnostic_batch_size": 20,
@@ -397,8 +412,8 @@ def run_verification(epochs, output_dir, report):
     )
     images, labels = next(iter(diagnostic_dataset))
 
-    # Match the classifier's (batch, 1) output shape.
-    labels = tf.reshape(labels, (-1, 1))
+    # Sparse categorical cross-entropy consumes scalar 0/1 class labels.
+    labels = tf.cast(tf.reshape(labels, (-1,)), tf.int32)
 
     # 4. Verify both declared trainability and actual weight updates.
     report["parameters"] = check_weight_updates(model, images, labels)

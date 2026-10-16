@@ -1,4 +1,4 @@
-"""Tests for the binary DR classifier built on the Section 2a backbone."""
+"""Tests for the paper-aligned, two-class DenseNet121 classifier head."""
 
 import math
 
@@ -41,28 +41,43 @@ def binary_classifier():
     )
 
 
-def test_head_is_global_average_pooling_optional_dropout_and_one_sigmoid(binary_classifier):
+def test_head_is_global_average_pooling_optional_dropout_and_two_softmax(binary_classifier):
     head = binary_classifier.layers[-3:]
     assert isinstance(head[0], tf.keras.layers.GlobalAveragePooling2D)
     assert isinstance(head[1], tf.keras.layers.Dropout)
     assert head[1].rate == pytest.approx(0.5)
     assert isinstance(head[2], tf.keras.layers.Dense)
-    assert head[2].units == 1
-    assert head[2].activation is tf.keras.activations.sigmoid
-    assert binary_classifier.output_shape == (None, 1)
+    assert head[2].units == 2
+    assert head[2].activation is tf.keras.activations.softmax
+    assert binary_classifier.output_shape == (None, 2)
 
     probabilities = binary_classifier(tf.zeros((2, 224, 224, 3)), training=False)
-    assert probabilities.shape == (2, 1)
+    assert probabilities.shape == (2, 2)
     assert bool(tf.reduce_all(tf.math.is_finite(probabilities)))
     assert bool(tf.reduce_all((probabilities >= 0) & (probabilities <= 1)))
+    tf.debugging.assert_near(
+        tf.reduce_sum(probabilities, axis=-1),
+        tf.ones((2,)),
+        atol=1e-6,
+    )
 
 
-def test_compile_uses_adam_binary_crossentropy_and_requested_learning_rate(binary_classifier):
+def test_compile_uses_adam_sparse_crossentropy_and_requested_learning_rate(binary_classifier):
     _assert_adam(binary_classifier.optimizer)
-    assert binary_classifier.loss == "binary_crossentropy" or isinstance(
-        binary_classifier.loss, tf.keras.losses.BinaryCrossentropy
+    assert binary_classifier.loss == "sparse_categorical_crossentropy" or isinstance(
+        binary_classifier.loss, tf.keras.losses.SparseCategoricalCrossentropy
     )
     assert _learning_rate(binary_classifier) == pytest.approx(0.002)
+
+    # Integer labels 0 = no DR and 1 = any DR must work with the two outputs.
+    evaluation = binary_classifier.evaluate(
+        tf.zeros((2, 224, 224, 3)),
+        tf.constant([0, 1], dtype=tf.int32),
+        verbose=0,
+        return_dict=True,
+    )
+    assert math.isfinite(evaluation["loss"])
+    assert "sparse_categorical_accuracy" in evaluation
 
     previous_optimizer = binary_classifier.optimizer
     c.compile_classifier(binary_classifier, learning_rate=0.001)
@@ -109,12 +124,14 @@ def test_unfreeze_and_refreeze_recompile_with_fresh_optimizer(binary_classifier)
     assert binary_classifier.layers[-1].trainable_weights
 
 
-def test_dropout_can_be_omitted():
-    model = c.build_classifier(weights=None, dropout_rate=0.0, compile_model=False)
+def test_default_head_omits_paper_unspecified_dropout():
+    model = c.build_classifier(weights=None, compile_model=False)
     assert not any(isinstance(layer, tf.keras.layers.Dropout) for layer in model.layers)
     assert isinstance(model.layers[-2], tf.keras.layers.GlobalAveragePooling2D)
     assert isinstance(model.layers[-1], tf.keras.layers.Dense)
-    assert model.output_shape == (None, 1)
+    assert model.layers[-1].units == 2
+    assert model.layers[-1].activation is tf.keras.activations.softmax
+    assert model.output_shape == (None, 2)
     assert getattr(model, "optimizer", None) is None
 
     # Trainability can also be configured before the first explicit compile.
