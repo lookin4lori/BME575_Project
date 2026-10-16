@@ -129,12 +129,14 @@ KEEP_BATCHNORM_FROZEN = True   # keep BatchNorm layers frozen even when fine-tun
 # Binary classifier head (Part 2b - Kaiyao)
 # ============================================================
 # Global average pooling follows the DenseNet121 architecture in the paper.
-# The one-unit sigmoid output, binary cross-entropy, and dropout follow our
-# team's binary-classification design; the paper does not specify a dropout
-# rate or an exact binary loss. Change the dropout rate to 0.0 to omit it.
+# The paper describes a softmax classifier for a binary task. Two output
+# probabilities (No DR, Any DR) and sparse categorical cross-entropy are our
+# implementation of that description with the existing 0/1 labels. The paper
+# does not specify dropout, so the paper-aligned baseline omits it. A nonzero
+# dropout rate can still be chosen for a separate team experiment.
 
-CLASSIFIER_DROPOUT_RATE = 0.5
-CLASSIFIER_OUTPUT_UNITS = 1
-CLASSIFIER_OUTPUT_ACTIVATION = "sigmoid"
-CLASSIFIER_LOSS = "binary_crossentropy"
+CLASSIFIER_DROPOUT_RATE = 0.0
+CLASSIFIER_OUTPUT_UNITS = 2
+CLASSIFIER_OUTPUT_ACTIVATION = "softmax"
+CLASSIFIER_LOSS = "sparse_categorical_crossentropy"
 CLASSIFIER_OPTIMIZER = "adam"

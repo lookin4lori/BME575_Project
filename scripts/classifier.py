@@ -1,13 +1,15 @@
-"""Binary diabetic-retinopathy classifier head (Section 2b).
+"""Paper-aligned binary diabetic-retinopathy classifier head (Section 2b).
 
 The Section 1c input pipeline already applies DenseNet ``preprocess_input``
-and yields scalar float32 labels (0 = no DR, 1 = any DR). This module adds a
-global average pooling layer, optional dropout, and one sigmoid output to the
-Section 2a backbone. It must not normalize inputs a second time.
+and yields scalar 0/1 labels (0 = no DR, 1 = any DR). This module adds global
+average pooling and a two-class softmax output to the Section 2a backbone.
+It must not normalize inputs a second time.
 
-The paper supplies DenseNet121, global average pooling, binary classification,
-Adam, and the training settings in ``config.py``. The exact loss and dropout
-rate are team implementation choices; the paper does not prescribe them.
+The paper specifies DenseNet121, global average pooling, a softmax classifier,
+binary classification, Adam, and the training settings in ``config.py``. It
+does not specify the output width, loss, or dropout. Two outputs and sparse
+categorical cross-entropy implement its binary softmax description; dropout
+is disabled by default and remains optional for separate experiments.
 """
 
 from __future__ import annotations
@@ -36,7 +38,7 @@ def compile_classifier(
     *,
     learning_rate: float = config.DENSENET_INITIAL_LEARNING_RATE,
 ) -> tf.keras.Model:
-    """Compile with a new Adam optimizer and binary cross-entropy loss.
+    """Compile with a new Adam optimizer and sparse categorical cross-entropy.
 
     Call again after changing which backbone layers are trainable. A new
     optimizer avoids reusing state tied to the former set of trainable weights.
@@ -47,10 +49,7 @@ def compile_classifier(
     classifier.compile(
         optimizer=optimizer,
         loss=config.CLASSIFIER_LOSS,
-        metrics=[
-            tf.keras.metrics.BinaryAccuracy(name="binary_accuracy"),
-            tf.keras.metrics.AUC(name="auc"),
-        ],
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
     )
     return classifier
 
@@ -63,7 +62,7 @@ def build_classifier(
     compile_model: bool = True,
     learning_rate: float = config.DENSENET_INITIAL_LEARNING_RATE,
 ) -> tf.keras.Model:
-    """Build the Section 2a DenseNet121 backbone with a binary head.
+    """Build the Section 2a DenseNet121 backbone with a two-class softmax head.
 
     ``weights=None`` is useful for offline tests. By default the backbone is
     frozen while the classifier's final dense layer can learn. Dropout may be
