@@ -9,6 +9,16 @@ tf = pytest.importorskip("tensorflow")
 from scripts import classifier as c
 
 
+def _assert_adam(optimizer):
+    """Accept modern and legacy Adam classes across supported Keras versions."""
+    adam_types = [tf.keras.optimizers.Adam]
+    legacy = getattr(tf.keras.optimizers, "legacy", None)
+    legacy_adam = getattr(legacy, "Adam", None)
+    if isinstance(legacy_adam, type):
+        adam_types.append(legacy_adam)
+    assert isinstance(optimizer, tuple(adam_types))
+
+
 def _backbone(model):
     """Find the DenseNet nested inside the full classifier model."""
     nested = [layer for layer in model.layers if isinstance(layer, tf.keras.Model)]
@@ -48,7 +58,7 @@ def test_head_is_global_average_pooling_optional_dropout_and_one_sigmoid(binary_
 
 
 def test_compile_uses_adam_binary_crossentropy_and_requested_learning_rate(binary_classifier):
-    assert isinstance(binary_classifier.optimizer, tf.keras.optimizers.Adam)
+    _assert_adam(binary_classifier.optimizer)
     assert binary_classifier.loss == "binary_crossentropy" or isinstance(
         binary_classifier.loss, tf.keras.losses.BinaryCrossentropy
     )
@@ -56,7 +66,7 @@ def test_compile_uses_adam_binary_crossentropy_and_requested_learning_rate(binar
 
     previous_optimizer = binary_classifier.optimizer
     c.compile_classifier(binary_classifier, learning_rate=0.001)
-    assert isinstance(binary_classifier.optimizer, tf.keras.optimizers.Adam)
+    _assert_adam(binary_classifier.optimizer)
     assert binary_classifier.optimizer is not previous_optimizer
     assert _learning_rate(binary_classifier) == pytest.approx(0.001)
 
@@ -109,7 +119,7 @@ def test_dropout_can_be_omitted():
 
     # Trainability can also be configured before the first explicit compile.
     c.set_classifier_backbone_trainable(model, 0)
-    assert isinstance(model.optimizer, tf.keras.optimizers.Adam)
+    _assert_adam(model.optimizer)
 
 
 @pytest.mark.parametrize("bad_rate", [-0.1, 1.0, math.nan])
