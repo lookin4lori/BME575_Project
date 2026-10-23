@@ -1,0 +1,6 @@
+original_grade,true_binary_label,number_of_images,correct,incorrect,predicted_no_dr,predicted_dr,fraction_correct
+0,0,361,351,10,351,10,0.9722991689750693
+1,1,74,66,8,8,66,0.8918918918918919
+2,1,200,197,3,3,197,0.985
+3,1,39,39,0,0,39,1.0
+4,1,59,57,2,2,57,0.9661016949152542
