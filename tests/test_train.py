@@ -127,7 +127,10 @@ def test_cached_head_shares_softmax_weights_with_full_classifier(
     assert head.input_shape == (None, 1024)
     assert head.output_shape == (None, 2)
     assert head.get_layer("dr_probability").kernel is model.get_layer("dr_probability").kernel
-    assert isinstance(head.optimizer, tf.keras.optimizers.Adam)
+    adam_types = (tf.keras.optimizers.Adam,)
+    if hasattr(tf.keras.optimizers, "legacy"):
+        adam_types += (tf.keras.optimizers.legacy.Adam,)
+    assert isinstance(head.optimizer, adam_types)
     assert float(tf.keras.backend.get_value(head.optimizer.learning_rate)) == pytest.approx(0.01)
     assert head.loss == "sparse_categorical_crossentropy" or isinstance(
         head.loss, tf.keras.losses.SparseCategoricalCrossentropy
