@@ -48,6 +48,38 @@ choice for two softmax outputs and scalar class labels, not a loss specified
 by the paper. See `reports/section2b_kaiyao.md` for scope and source alignment.
 
 Previous verification outputs for the single-sigmoid classifier describe
-that earlier model and need to be regenerated for this two-output version.
-This architecture update does not itself reproduce a full training run or
-the paper's reported performance.
+that earlier model. The two-output model has its own record at
+`reports/verification/20261016_174508_321406/verification.json`. That
+diagnostic did not reproduce a full training run or the paper's reported
+performance.
+
+## Section 3a: training baseline (Kaiyao)
+
+From the repository root, after generating the 224 × 224 processed PNGs,
+run the training script with its default configuration:
+
+```bash
+python -m scripts.train
+```
+
+The baseline uses the frozen ImageNet-pretrained DenseNet121 backbone from
+Section 2a and the Section 2b global-average-pooling/two-output softmax head.
+It trains with Adam at an initial learning rate of 0.01, batch size 32, and
+up to 50 epochs. The loss is sparse categorical cross-entropy for the existing
+integer labels (`0` = no DR, `1` = any DR). Class weights are calculated from
+the **training split only**. The validation split controls callbacks and model
+selection; the test split is reserved for later evaluation.
+
+Each ignored `runs/section3a/<UTC timestamp>/` directory contains
+`metadata.json`, `history.csv`, the best trainable weights, and full saved
+models for the final and best epochs. Frozen backbone features are cached in
+memory by default so 50 epochs of head training do not rerun the backbone.
+The saved full models support inference; they do not preserve the cached-head
+optimizer state for resuming training. The baseline
+does not use image augmentation or dropout. The team's existing 70/10/20
+train/validation/test split differs from the paper's 80/20 split. The paper
+provides the model family, optimizer, batch size, epoch count, and learning
+rate bounds, but does not define our class-weight formula, callback schedule,
+or sparse loss. The chosen learning-rate callback is ReduceLROnPlateau with
+factor 0.5, patience 3, and a 0.00005 floor. See
+`reports/section3a_training.md` for the paper-alignment notes and run record.

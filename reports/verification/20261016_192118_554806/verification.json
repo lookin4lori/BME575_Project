@@ -1,0 +1,135 @@
+{
+  "purpose": "Section 2c engineering verification",
+  "status": "Checks passed; learning diagnostic completed.",
+  "settings": {
+    "seed": 0,
+    "pretrained_weights": "imagenet",
+    "learning_rate": 0.01,
+    "dropout": 0.0,
+    "output_units": 2,
+    "output_activation": "softmax",
+    "loss": "sparse_categorical_crossentropy",
+    "prediction_columns": [
+      "no_dr",
+      "any_dr"
+    ],
+    "diagnostic_epochs": 50,
+    "configured_batch_size": 32,
+    "effective_diagnostic_batch_size": 20,
+    "overfit_augmentation": false,
+    "overfit_class_weights": null,
+    "tensorflow_version": "2.15.0"
+  },
+  "dummy_batch": {
+    "image_shape": [
+      2,
+      224,
+      224,
+      3
+    ],
+    "label_shape": [
+      2
+    ],
+    "prediction_shape": [
+      2,
+      2
+    ],
+    "prediction_columns": [
+      "no_dr",
+      "any_dr"
+    ]
+  },
+  "real_batches": {
+    "train": {
+      "image_shape": [
+        4,
+        224,
+        224,
+        3
+      ],
+      "label_shape": [
+        4
+      ],
+      "prediction_shape": [
+        4,
+        2
+      ],
+      "prediction_columns": [
+        "no_dr",
+        "any_dr"
+      ]
+    },
+    "val": {
+      "image_shape": [
+        4,
+        224,
+        224,
+        3
+      ],
+      "label_shape": [
+        4
+      ],
+      "prediction_shape": [
+        4,
+        2
+      ],
+      "prediction_columns": [
+        "no_dr",
+        "any_dr"
+      ]
+    },
+    "test": {
+      "image_shape": [
+        4,
+        224,
+        224,
+        3
+      ],
+      "label_shape": [
+        4
+      ],
+      "prediction_shape": [
+        4,
+        2
+      ],
+      "prediction_columns": [
+        "no_dr",
+        "any_dr"
+      ]
+    }
+  },
+  "augmentation": {
+    "changed_training_views": 32,
+    "attempted_training_views": 32,
+    "validation_and_test_repeatable": true,
+    "evaluation_augmentation_rejected": true
+  },
+  "parameters": {
+    "full_model": {
+      "total": 7039554,
+      "trainable": 2050,
+      "non_trainable": 7037504
+    },
+    "backbone": {
+      "total": 7037504,
+      "trainable": 0,
+      "non_trainable": 7037504
+    }
+  },
+  "weight_updates": "Head changed; frozen backbone unchanged.",
+  "overfit20": {
+    "initial": {
+      "epoch": 0,
+      "subset_loss": 0.6922959685325623,
+      "subset_accuracy": 0.65
+    },
+    "final": {
+      "epoch": 50,
+      "subset_loss": 0.0031552293803542852,
+      "subset_accuracy": 1.0
+    },
+    "loss_decreased": true,
+    "reached_95_percent": true,
+    "note": "95% is a diagnostic target, not a paper requirement. These are training-subset results, not held-out performance."
+  }
+}

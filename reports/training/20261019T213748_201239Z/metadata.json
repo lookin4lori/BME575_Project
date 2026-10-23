@@ -1,0 +1,82 @@
+{
+  "class_weights": {
+    "0": 1.0142517814726841,
+    "1": 0.9861431870669746
+  },
+  "fitted_train_counts": {
+    "0": 1263,
+    "1": 1299
+  },
+  "fitted_val_counts": {
+    "0": 181,
+    "1": 186
+  },
+  "manifest_sha256": {
+    "test": "f431bc4bcbeb9109aa687baf9c5253136afffca77416272a8452df04bb6be745",
+    "train": "7942d3e80850b7b1c4f9d7075052e1c86e9ad82f87218883cd6c0c4b1d10edf9",
+    "val": "1d3b87435a9867c8ef7dcfc08fa7772546c56f264f9d148388d588a0137c3d1e"
+  },
+  "paper": "Mohanty et al., Sensors 2023, 23, 5726, Sections 4.3-4.4",
+  "paper_settings": {
+    "architecture": "frozen pretrained DenseNet121 + global average pooling + binary softmax",
+    "batch_size": 32,
+    "epochs": 50,
+    "initial_learning_rate": 0.01,
+    "minimum_learning_rate": 5e-05,
+    "optimizer": "Adam"
+  },
+  "project_choices": {
+    "augmentation": false,
+    "class_weights": "n_train / (2 * n_class), from fit training rows only",
+    "dropout": 0.0,
+    "feature_cache": true,
+    "loss": "sparse_categorical_crossentropy",
+    "lr_callback": "ReduceLROnPlateau(val_loss, factor, patience, min_lr)",
+    "pretrained_weights": "imagenet",
+    "split": "existing stratified 70/10/20 train/val/test manifests"
+  },
+  "result": {
+    "best_epoch": 24,
+    "best_val_loss": 0.07935807853937149,
+    "best_val_sparse_categorical_accuracy": 0.9700272679328918,
+    "completed_epochs": 50,
+    "last_epoch_learning_rate": 4.999999873689376e-05
+  },
+  "run_id": "20261019T213748_201239Z",
+  "settings": {
+    "batch_size": 32,
+    "epochs": 50,
+    "initial_learning_rate": 0.01,
+    "min_learning_rate": 5e-05,
+    "reduce_lr_factor": 0.5,
+    "reduce_lr_patience": 3,
+    "seed": 0,
+    "train_limit": null,
+    "val_limit": null
+  },
+  "split_counts": {
+    "test": {
+      "binary": {
+        "0": 361,
+        "1": 372
+      },
+      "size": 733
+    },
+    "train": {
+      "binary": {
+        "0": 1263,
+        "1": 1299
+      },
+      "size": 2562
+    },
+    "val": {
+      "binary": {
+        "0": 181,
+        "1": 186
+      },
+      "size": 367
+    }
+  },
+  "status": "completed",
+  "tensorflow_version": "2.21.0"
+}
