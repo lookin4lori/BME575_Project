@@ -239,7 +239,12 @@ def build_tf_dataset(
         import tensorflow as tf
     except ImportError as exc:
         raise ImportError("TensorFlow is required to build the tf.data pipeline") from exc
-
+    #---------added for comparison model stuff - anais
+    preprocess = {
+        "densenet121": tf.keras.applications.densenet.preprocess_input,
+        "inception_v3": tf.keras.applications.inception_v3.preprocess_input,
+    }[str(_config_value("BACKBONE_NAME", "densenet121"))]
+    #-----------------
     height = int(image_height or _config_value("IMAGE_HEIGHT", 224))
     width = int(image_width or _config_value("IMAGE_WIDTH", 224))
     if height != width:
@@ -265,7 +270,7 @@ def build_tf_dataset(
                 (), keys[2], minval=0, maxval=4, dtype=tf.int32
             )
             image = tf.image.rot90(image, k=turns)
-        image = tf.keras.applications.densenet.preprocess_input(image)
+        image = preprocess(image) # changed from "image = tf.keras.applications.densenet.preprocess_input(image)" for comparison model-anais
         return image, label
 
     return (
