@@ -1,0 +1,43 @@
+{
+  "split": "test",
+  "checkpoint": "C:\\Users\\artis\\BMME575\\BME575_Project\\runs\\section3c_inception_v3\\20261027T231722_379158Z\\best_model.keras",
+  "checkpoint_sha256": "484eebd6ba3d0987e8f390312963f821c31e89ed042d8ed74884dff038aac8a8",
+  "training_run_id": "20261027T231722_379158Z",
+  "selected_epoch": 50,
+  "selection_criterion": "lowest validation loss",
+  "training_metadata_sha256": "29665ea4c566ae1960b650a6c2a0c0ccd6795e32423ddac371605e3617a8ac9d",
+  "manifest_checks": {
+    "train": {
+      "local_sha256": "7942d3e80850b7b1c4f9d7075052e1c86e9ad82f87218883cd6c0c4b1d10edf9",
+      "training_sha256": "7942d3e80850b7b1c4f9d7075052e1c86e9ad82f87218883cd6c0c4b1d10edf9",
+      "matching_line_endings": "exact"
+    },
+    "val": {
+      "local_sha256": "1d3b87435a9867c8ef7dcfc08fa7772546c56f264f9d148388d588a0137c3d1e",
+      "training_sha256": "1d3b87435a9867c8ef7dcfc08fa7772546c56f264f9d148388d588a0137c3d1e",
+      "matching_line_endings": "exact"
+    },
+    "test": {
+      "local_sha256": "f431bc4bcbeb9109aa687baf9c5253136afffca77416272a8452df04bb6be745",
+      "training_sha256": "f431bc4bcbeb9109aa687baf9c5253136afffca77416272a8452df04bb6be745",
+      "matching_line_endings": "exact"
+    }
+  },
+  "tensorflow_version": "2.21.0",
+  "keras_version": "3.15.1",
+  "batch_size": 32,
+  "augmentation": false,
+  "shuffle": false,
+  "normalization": "dataset.py DenseNet preprocess_input, once",
+  "label_mapping": {
+    "0": "No DR",
+    "1": "Any DR"
+  },
+  "class_prediction": "argmax",
+  "roc_probability_column": 1,
+  "validation_accuracy": 0.9373297002724795,
+  "validation_loss": 0.1813269853591919,
+  "validation_accuracy_tolerance": 1e-05,
+  "validation_loss_tolerance": 0.001,
+  "scope": "Evaluation of the team's paper-aligned baseline. Additional metrics and grade subgroups are assessment extensions. No fitting or test-based tuning."
+}
