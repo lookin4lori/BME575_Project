@@ -1,0 +1,10 @@
+model,source,accuracy_pct
+DenseNet121,"Target paper (Mohanty et al., 2023)",97.3
+GoogleNet,Ref. [72] cited in target paper,97.0
+DenseNet121,This project,96.86
+Inception V3,This project,94.54
+CNN,Ref. [70] cited in target paper,94.44
+Inception-ResNet-V2,Ref. [71] cited in target paper,82.18
+Inception V3,Ref. [69] cited in target paper,82.0
+VGG16 + XGBoost (hybrid),"Target paper (Mohanty et al., 2023)",79.5
+CNN,Ref. [68] cited in target paper,75.61

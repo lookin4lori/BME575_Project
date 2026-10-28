@@ -119,7 +119,10 @@ CIRCLE_SCALE = 0.95         # mask radius as a fraction of half the image width
 # The paper uses pretrained feature detectors and trains only the classifier,
 # so the backbone is frozen by default (UNFREEZE_LAST_N_BLOCKS = 0).
 
-BACKBONE_NAME = "densenet121"
+import os
+# Default is DenseNet121. For a comparison run, set the BACKBONE_NAME environment
+# variable in the terminal instead of editing this file.
+BACKBONE_NAME = os.environ.get("BACKBONE_NAME", "densenet121")
 BACKBONE_WEIGHTS = "imagenet"
 UNFREEZE_LAST_N_BLOCKS = 0     # 0 = fully frozen; 1-4 = unfreeze that many final dense blocks
 KEEP_BATCHNORM_FROZEN = True   # keep BatchNorm layers frozen even when fine-tuning

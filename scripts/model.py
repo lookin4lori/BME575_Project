@@ -22,8 +22,10 @@ import config
 
 # Supported backbones. Comparison models for Section 3c can be added here.
 # Note: other models may need a different preprocess_input than dataset.py uses.
+## NEW NOte from 10/26 **just added Comparison model stuff to backbone
 BACKBONES = {
     "densenet121": tf.keras.applications.DenseNet121,
+    "inception_v3": tf.keras.applications.InceptionV3,
 }
 
 # DenseNet121's four dense blocks, named conv2_ to conv5_ in Keras
@@ -57,6 +59,9 @@ def set_backbone_trainable(backbone, unfreeze_last_n_blocks=0,
     n = unfreeze_last_n_blocks
     if not 0 <= n <= len(DENSE_BLOCK_STAGES):
         raise ValueError(f"unfreeze_last_n_blocks must be 0-{len(DENSE_BLOCK_STAGES)}, got {n}")
+    #comparison add
+    if n > 0 and backbone.name != "densenet121":
+        raise ValueError("Unfreezing blocks is only implemented for DenseNet121")
 
     if n == 0:
         backbone.trainable = False
